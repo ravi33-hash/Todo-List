@@ -1,20 +1,39 @@
 let todoItemsContainer = document.getElementById("todoItemsContainer");
 let addTodoButton= document.getElementById("addTodoButton");
-let todoCount= 0;
+let saveButton= document.getElementById("saveTodoButton");
+
+function getLocalStorage()
+{
+    let StringField= localStorage.getItem("todoList");
+    let parsedTodoList= JSON.parse(StringField);
+    if(parsedTodoList===null)
+    {
+        return [];
+    }
+    else
+    {
+        return parsedTodoList;
+    }
+}
+
+let TodoList= getLocalStorage();
+let todoCount= TodoList.length;
+
+saveButton.onclick= function()
+{
+    localStorage.setItem("todoList",JSON.stringify(TodoList));
+}
+
 addTodoButton.onclick= function()
 {
     addTodo();
 }
 
-
-
-
-
 function onTodoStatusChange(inputId,labelId)
 {
     let checkedBox= document.getElementById(inputId);
     let labelBox= document.getElementById(labelId);
-
+    
     if(checkedBox.checked=== true)
     {
         labelBox.classList.add("checked");
@@ -29,6 +48,22 @@ function onDelete(deleteId)
 {
     let todoElement= document.getElementById(deleteId);
     todoItemsContainer.removeChild(todoElement);
+
+    let deleteIndex= TodoList.findIndex(function(eachTodo)
+    {
+        let deleteTodo= 'todo'+eachTodo.un;
+        if(deleteTodo === deleteId)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    });
+
+    TodoList.splice(deleteIndex,1);
+
 }
 
 function createAndAppendTodo(todo) 
@@ -38,7 +73,7 @@ function createAndAppendTodo(todo)
   todoItemsContainer.appendChild(todoElement);
 
   let labelId= "label"+todo.un;
-  console.log(labelId);
+  
   let inputId= "checkboxInput"+ todo.un;
   let deleteId= "todo"+todo.un;
   todoElement.id= deleteId;
@@ -77,6 +112,11 @@ function createAndAppendTodo(todo)
   deleteIconContainer.appendChild(deleteIcon);
 }
 
+for (let todo of TodoList)
+{
+    createAndAppendTodo(todo);
+}
+
 function addTodo()
 {
     
@@ -96,6 +136,9 @@ function addTodo()
         un: todoCount
     };
     
+    
+    TodoList.push(newTodo);
     createAndAppendTodo(newTodo);
     userInputElement.value= "";
 }
+
